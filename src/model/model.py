@@ -2,6 +2,12 @@
 
 import torch
 from torch import nn
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+transform = transforms.ToTensor()
+train_data = datasets.MNIST(root="data", train=True, download=True, transform=transform)
+test_data = datasets.MNIST(root="data", train=False, download=True, transform=transform)
 
 # ===== CNN-HAUPTKLASSE =====
 class MNIST_CNN(nn.Module):
@@ -61,17 +67,53 @@ class MNIST_CNN(nn.Module):
         x = self.classifier(x)  # [4, 784] -> [4, 10]
 
         return x
+    
+# ===== TRAINING =====
+def train_model(model, train_data, epochs=5):
+    train_loader = DataLoader(train_data, batch_size=64, shuffle=True) # trainingsdaten in 64 Gruppen teilen und mischen
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) # der Optimizer aktualisiert die Gewichte des Netzes
+
+    model.train() # setzt Modell in Trainingsmodus (setzt training flag auf True)
+    for epoch in range(epochs):
+        for images, labels in train_loader:
+            optimizer.zero_grad() # löscht Gradienten des vorherigen Batches
+            prediction = model(images) # Vorhersage machen
+            loss = loss_fn(prediction, labels) # berechnet loss aus Vorhersage und wahren Antworten
+            loss.backward() # berechnet für jedes Gewicht den Gradienten des Loss
+            optimizer.step() # aktualisiert alle Gewichte anhand dieser Gradienten
+        print(f"Epoche {epoch+1}: letzter Loss {loss.item():.4f}")
 
 
 # ===== TEST =====
+def evaluate(model, test_data):
+    test_loader = DataLoader(test_data, batch_size=1000)
+
+    model.eval() # setzt training flag auf False
+    correct = 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            prediction = model(images) # Vorhersage, hat Form [1000, 10], 1000 wegen batch_size und 10 sind die 10 Werte der Output-Neuronen
+            # jeweils pro Zeile (mit den 10 Einträgen) wird immer der Index des Eintrags mit der höchsten Zahl gespeichert
+            # Dieser Index sollte jetzt gleich der Zahl sein welche auf dem Bild abgebildet ist
+            predicted_numbers = prediction.argmax(dim=1)
+            correct += (predicted_numbers == labels).sum().item() #sum liefert tensor mit einzigem Wert, .item() macht daraus einen integer
+    return correct / len(test_data)
+
+
+# ===== AUSFÜHRUNG =====
 if __name__ == "__main__":
     model = MNIST_CNN()
+    train_model(model, train_data)
+    accuracy = evaluate(model, test_data)
+    print(f"Genauigkeit: {accuracy:.2%}")
+    
 
-    example_images = torch.randn(4, 1, 28, 28)  # Testeingabe: Vier Bilder, ein Kanal, 28 x 28 px
-    output = model(example_images)
+    # example_images = torch.randn(4, 1, 28, 28)  # Testeingabe: Vier Bilder, ein Kanal, 28 x 28 px
+    # output = model(example_images)
 
-    print("Eingabe: ", example_images.shape)
-    print("Ausgabe: ", output.shape)
+    # print("Eingabe: ", example_images.shape)
+    # print("Ausgabe: ", output.shape)
 
-    print("Klassenwerte des ersten Bildes: ", output[0])
-    print("Vorhergesagte Ziffern: ", output.argmax(dim=1))  # argmax liefert Position des größten Klassenwertes (= größter Wahrscheinlichkeit einer Klasse)
+    # print("Klassenwerte des ersten Bildes: ", output[0])
+    # print("Vorhergesagte Ziffern: ", output.argmax(dim=1))  # argmax liefert Position des größten Klassenwertes (= größter Wahrscheinlichkeit einer Klasse)
