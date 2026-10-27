@@ -1,1 +1,0 @@
-# Convolutional Neural Network for recognising MNIST handwritten digits
