@@ -1,7 +1,10 @@
 .venv/
 /data/
+/checkpoints/
 src/__pycache__/__init__.cpython-310.pyc
 src/data/__pycache__/__init__.cpython-310.pyc
 src/data/__pycache__/mnist.cpython-310.pyc
 src/model/__pycache__/__init__.cpython-310.pyc
 src/model/__pycache__/model.cpython-310.pyc
+src/fault_injection/__pycache__/__init__.cpython-310.pyc
+src/fault_injection/__pycache__/test_injection.cpython-310.pyc

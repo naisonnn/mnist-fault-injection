@@ -12,11 +12,11 @@ from pathlib import Path
 from src.data.mnist import load_mnist
 
 # ===== CNN-HAUPTKLASSE =====
-class MNIST_CNN(nn.Module):
+class MNIST_CNN(nn.Module):     # vererbt nn-Module für PyTorch-Funktionen von Modellen
     def __init__(self):
-        super().__init__()
+        super().__init__()      # initialisiert ebendiese Basisklasse
 
-        # === 1. CNN-Block ===
+        # === 1. CNN-Faltungsschicht/-Block ===
         self.conv1 = nn.Conv2d(
             in_channels=1,      # Eingabe-Bilder haben nur einen Eingabekanal: Graustufenwert
             out_channels=8,     # Wir arbeiten mit acht lernbaren Filtern
@@ -27,7 +27,7 @@ class MNIST_CNN(nn.Module):
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2)
 
-        # === 2. CNN-Block ===
+        # === 2. CNN-Faltungsschicht ===
         # nimmt Merkmalskarten der Ausgabe des ersten Blocks entgegen und verarbeitet diese
         self.conv2 = nn.Conv2d(
             in_channels=8,      # entsprechend der Ausgabe von Block 1
@@ -113,13 +113,15 @@ def evaluate(model, dataset, device):
 
 # ===== AUSFÜHRUNG =====
 if __name__ == "__main__":
-    torch.manual_seed(42)
+    torch.manual_seed(42)   # Initialisierung des Zufallsgenerators, damit die Ergebnisse reproduzierbar sind
 
+    # === Gerät auswählen ===
     device = torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
     )
     print("Verwendetes Gerät:", device)
 
+    # === Trainings- und Validierungsdaten laden ===
     full_training_data = load_mnist(train=True)
 
     train_data, validation_data = random_split(
@@ -131,6 +133,7 @@ if __name__ == "__main__":
     print("Trainingsbilder:", len(train_data))
     print("Validierungsbilder:", len(validation_data))
 
+    # === Modell initialisieren und trainieren ===
     model = MNIST_CNN().to(device)
 
     train_model(model, train_data, device, epochs=5)
@@ -175,12 +178,3 @@ if __name__ == "__main__":
     )
 
     print(f"Genauigkeit nach dem Laden: {loaded_accuracy:.2%}")
-
-    # example_images = torch.randn(4, 1, 28, 28)  # Testeingabe: Vier Bilder, ein Kanal, 28 x 28 px
-    # output = model(example_images)
-
-    # print("Eingabe: ", example_images.shape)
-    # print("Ausgabe: ", output.shape)
-
-    # print("Klassenwerte des ersten Bildes: ", output[0])
-    # print("Vorhergesagte Ziffern: ", output.argmax(dim=1))  # argmax liefert Position des größten Logits
