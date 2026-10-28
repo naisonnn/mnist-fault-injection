@@ -1,9 +1,14 @@
 # Convolutional Neural Network for recognising MNIST handwritten digits
 
+# === Neural Network-Imports ===
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 
+# === Sonstige Imports ===
+from pathlib import Path
+
+# === Lokale Imports ===
 from src.data.mnist import load_mnist
 
 # ===== CNN-HAUPTKLASSE =====
@@ -132,7 +137,44 @@ if __name__ == "__main__":
 
     accuracy = evaluate(model, validation_data, device)
     print(f"Validierungsgenauigkeit: {accuracy:.2%}")
-    
+
+
+    # === Trainiertes Modell sichern ===
+    checkpoint_dir = (
+        Path(__file__).resolve().parents[2] / "checkpoints"
+    )
+
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = checkpoint_dir / "mnist_baseline.pt"
+
+    torch.save(
+        {
+            "model_state_dict": model.state_dict(),
+            "validation_accuracy": accuracy,
+        },
+        checkpoint_path,
+    )
+
+    print("Referenzmodell gespeichert:", checkpoint_path)
+
+
+    # === Gespeichertes Modell wiederherstellen und testen ===
+    checkpoint = torch.load(
+        checkpoint_path,
+        map_location=device,
+        weights_only=True,
+    )
+
+    loaded_model = MNIST_CNN().to(device)
+    loaded_model.load_state_dict(checkpoint["model_state_dict"])
+
+    loaded_accuracy = evaluate(
+        loaded_model,
+        validation_data,
+        device,
+    )
+
+    print(f"Genauigkeit nach dem Laden: {loaded_accuracy:.2%}")
 
     # example_images = torch.randn(4, 1, 28, 28)  # Testeingabe: Vier Bilder, ein Kanal, 28 x 28 px
     # output = model(example_images)
