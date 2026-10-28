@@ -7,9 +7,11 @@
 
 ## 1. Projektziel und Forschungsfrage
 
-Ziel ist die experimentelle Untersuchung, wie simulierte Bitfehler in den Zwischenergebnissen eines kleinen CNN dessen Klassifikationen beeinflussen. Im Mittelpunkt steht außerdem die Frage, ob Training unter Fehlerinjektion die Robustheit bei späterer Inferenz verbessert.
+Ziel ist die experimentelle Untersuchung, wie simulierte Bitfehler in den Zwischenergebnissen eines kleinen Convolutional Neural Networks (CNN) dessen Klassifikationen beeinflussen. Im Mittelpunkt steht außerdem die Frage, ob Training unter Fehlerinjektion die Robustheit bei späterer Inferenz verbessert.
 
-Wir verwenden eine kleine CNN-Vorlage aus normalen PyTorch-Schichten, passen sie an MNIST an und trainieren sie selbst. Faltungen, Pooling und die Ableitungen der CNN-Schichten werden von PyTorch bereitgestellt. Die eigene Entwicklungsarbeit konzentriert sich auf Trainingsablauf, Fehlerinjektion, Experimentsteuerung und Auswertung. Vortrainierte Gewichte werden für das Kernprojekt nicht benötigt.
+Als Testdatensatz, auf dem das CNN klassifiziert, verwenden wir den MNIST-Datensatz (Modified National Institute of Standards and Technology database), welcher aus 70.000 handgeschriebenen Ziffern als Graustufen-Bildern besteht.
+
+Wir verwenden eine kleine CNN-Vorlage aus normalen PyTorch-Schichten, passen sie an MNIST an und trainieren sie selbst. Die eigene Entwicklungsarbeit konzentriert sich auf Trainingsablauf, Fehlerinjektion, Experimentsteuerung und Auswertung. Vortrainierte Gewichte werden für das Kernprojekt nicht benötigt.
 
 **Zentrale Forschungsfrage:**  
 Wie beeinflussen Bitfehler in unterschiedlichen CNN-Schichten die Ziffernerkennung, und verändert Training unter solchen Fehlern die Robustheit des Modells bei der Inferenz?
