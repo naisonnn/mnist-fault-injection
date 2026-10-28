@@ -1,2 +1,7 @@
 .venv/
 /data/
+src/__pycache__/__init__.cpython-310.pyc
+src/data/__pycache__/__init__.cpython-310.pyc
+src/data/__pycache__/mnist.cpython-310.pyc
+src/model/__pycache__/__init__.cpython-310.pyc
+src/model/__pycache__/model.cpython-310.pyc
