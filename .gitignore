@@ -1,6 +1,10 @@
 .venv/
 /data/
 /checkpoints/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
 src/__pycache__/__init__.cpython-310.pyc
 src/data/__pycache__/__init__.cpython-310.pyc
 src/data/__pycache__/mnist.cpython-310.pyc
