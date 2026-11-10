@@ -51,3 +51,4 @@ Die Reihenfolge `zero_grad()`, Vorwärtsrechnung, Verlustberechnung, `backward()
 | Q21 | PyTorch: [nn.Module.register_forward_hook, Version 2.9](https://docs.pytorch.org/docs/2.9/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook) | Beobachten der Schichtausgaben, Hook-Argumente, Ausführungsreihenfolge und Entfernen der Beobachtungs-Hooks über Handles. |
 | Q22 | PyTorch: [Tensor.detach, Version 2.9](https://docs.pytorch.org/docs/2.9/generated/torch.Tensor.detach.html) | Lösen der beobachteten Aktivierungen von der Verbindung zur Gradientenberechnung. |
 | Q23 | PyTorch: [torch.clone, Version 2.9](https://docs.pytorch.org/docs/2.9/generated/torch.clone.html) | Unabhängige Kopie der Aktivierungsdaten für den Vergleich von Referenz- und Fehlerlauf. |
+| Q24 | https://www.pytorchfi.dev/example | Genutzt zur Orientierung, um eine eigene Bitflip Klasse für Fehlerinjektion zu implementieren |
