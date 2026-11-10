@@ -6,7 +6,7 @@ import torch
 from torch import nn
 from pytorchfi.core import fault_injection
 
-from src.model.model import MNIST_CNN
+from src.model.cnn import MNIST_CNN
 from src.data.mnist import load_mnist
 
 def main():
