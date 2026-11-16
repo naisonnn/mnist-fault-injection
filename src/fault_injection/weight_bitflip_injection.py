@@ -1,13 +1,28 @@
 from pathlib import Path
-import torch
+import argparse
 import random
 import struct
+
+# NN
+import torch
 from torch import nn
 from pytorchfi.core import fault_injection
 
+# lokale Module
 from src.model.cnn import MNIST_CNN
+from src.model.mlp import MNIST_MLP
 from src.model.train import evaluate
 from src.data.mnist import load_mnist
+
+
+# === Vorkonfigurationen: Modellklasse, Checkpoint-Dateiname, Schichttyp, Schichtname und Position im Tensor, in den injiziert wird ===
+MODEL_CONFIGS = {
+    "cnn": (MNIST_CNN, "mnist_baseline.pt", nn.Conv2d, "conv1", ([0], [0], [0], [0],)), # jede Liste sollte gleich viele Elemente haben, da alle Elemente an einem Index zu einer Injektion gehöen 
+    "mlp": (MNIST_MLP, "mnist_mlp_baseline.pt", nn.Linear, "hidden", ([0, 0], # Index des Layers
+                                                                      [0, 10], # Ausgang am Neuron  
+                                                                      [0, 14*28+14], # Eingang, 14*28+14 -> mnist-Bildmitte
+                                                                      )),
+}
 
 
 # Diese Klasse definiert eine Funktion flip_bits, welche dazu genutzt wird, die Gewichte unseres CNNs mit bit flips zu manipulieren.
@@ -75,11 +90,18 @@ def main():
     device = torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
     )
+    parser = argparse.ArgumentParser(description="Testet eine Aktivierungsinjektion.")
+    parser.add_argument("--model", choices=("cnn", "mlp"), default="cnn")
+    args = parser.parse_args()
+    selected_model = args.model
+    model_class, checkpoint_name, layer_type, layer_name, position = MODEL_CONFIGS[selected_model]
+
+    print(f"\n=== {selected_model.upper()} | {layer_name} | Position {position} ===")
 
     # === Modell aus gespeichertem Checkpoint laden ===
     project_root = Path(__file__).resolve().parents[2]
     checkpoint_path = (
-        project_root / "checkpoints" / "mnist_baseline.pt"
+        project_root / "checkpoints" / checkpoint_name
     )
 
     checkpoint = torch.load(
@@ -88,7 +110,7 @@ def main():
         weights_only=True,
     )
 
-    model = MNIST_CNN().to(device)
+    model = model_class().to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()  
 
@@ -100,21 +122,31 @@ def main():
                     model, # Das geladene Modell
                     batch_size=1, # ganzen Datensatz
                     input_shape=[1, 28, 28], # Keine Batchdimension -> Graustufenbild mit 28 x 28 px
-                    layer_types=[nn.Conv2d], # Faltungsschichten als möglche Injektionspunkte auswählen
+                    layer_types=[layer_type], # Faltungsschichten als möglche Injektionspunkte auswählen
                     use_cuda=device.type == "cuda", # Zum Modell passendes Gerät wählen  
                 )
 
     pfi_model_2.print_pytorchfi_layer_summary()
 
     # Injektion festlegen
-    faulty_model = pfi_model_2.declare_weight_fi(
-                                function=pfi_model_2.flip_bits, # eigene Funktion festlegen
-                                layer_num=[0], # index des Layers in den injiziert wird (also welche Conv2 Schicht)
-                                k=[0], # index des Filters im Layers
-                                dim1=[0], # dimension des channels (wir haben nur einen, da Graustufen anstatt rgb)
-                                dim2=[0], # Kernelhöhe des Filters
-                                dim3=[0], # Kernelbreite des Filters
-                                )
+    if selected_model == "cnn": 
+        faulty_model = pfi_model_2.declare_weight_fi(
+                                    function=pfi_model_2.flip_bits, # eigene Funktion festlegen
+                                    layer_num=position[0], # index des Layers in den injiziert wird (also welche Conv2 Schicht)
+                                    k=position[1], # index des Filters im Layers
+                                    dim1=[0 for i in position[0]], # dimension des channels (wir haben nur einen, da Graustufen anstatt rgb, deshalb nur Liste mit Nullen)
+                                    dim2=position[2], # Kernelhöhe des Filters
+                                    dim3=position[3], # Kernelbreite des Filters
+                                    )
+    elif selected_model == "mlp":
+        faulty_model = pfi_model_2.declare_weight_fi(
+                                    function=pfi_model_2.flip_bits, # eigene Funktion festlegen
+                                    layer_num=position[0], # index des Layers in den injiziert wird (also welche Linear Schicht)
+                                    k=position[1], # in Position in Layer
+                                    dim1=position[2], # out position im Layer
+                                    dim2=[None for i in position[0]], # brauch Liste mit None (obwohl dimension hier nicht gebraucht wird), da sonst leere Liste genommen wird (wirft Error)
+                                    dim3=[None for i in position[0]],
+                                    )
 
     # Beide Modelle ausführen
     try:
