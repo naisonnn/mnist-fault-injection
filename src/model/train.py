@@ -47,6 +47,7 @@ def evaluate(model, dataset, device):
 
     model.eval() # setzt training flag auf False
     correct = 0
+    invalid = 0
 
     with torch.no_grad():
         for images, labels in data_loader:
@@ -56,9 +57,11 @@ def evaluate(model, dataset, device):
             prediction = model(images) # Vorhersage, hat Form [1000, 10], 1000 wegen batch_size und 10 sind die 10 Werte der Output-Neuronen
             # jeweils pro Zeile (mit den 10 Einträgen) wird immer der Index des Eintrags mit der höchsten Zahl gespeichert
             # Dieser Index sollte jetzt gleich der Zahl sein, welche auf dem Bild abgebildet ist
-            predicted_numbers = prediction.argmax(dim=1)
+            valid = torch.isfinite(prediction).all(dim=1)
+            invalid += (~valid).sum().item()
 
-            correct += (predicted_numbers == labels).sum().item() #sum liefert tensor mit einzigem Wert, .item() macht daraus einen integer
+            predicted_numbers = prediction[valid].argmax(dim=1)
+            correct += (predicted_numbers == labels[valid]).sum().item() #sum liefert tensor mit einzigem Wert, .item() macht daraus einen integer
     return correct / len(dataset)
 
 

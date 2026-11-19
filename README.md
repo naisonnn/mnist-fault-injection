@@ -1,4 +1,5 @@
 # Fehlerinjektion mit MNIST
+
 Dieses Projektseminar an der HTW Dresden untersucht, wie sich simulierte Fehler in neuronalen Netzen auf die Erkennung handgeschriebener Ziffern auswirken. Dafür vergleichen wir zwei Modelle auf demselben MNIST-Datensatz:
 
 - **Convolutional Neural Network (CNN):** Verarbeitet die Bilder mit Faltungsschichten und nutzt dabei die räumliche Anordnung der Pixel.
