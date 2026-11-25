@@ -10,3 +10,5 @@ Prio:
 CNN-Vorlage siehe OPAL mit PyTorchFI kombinieren
 CNN-Vorlage auf MNIST-Datensatz adaptieren bzw. eigenes aufsetzen, wenn mit PyTorchFI mgl.
 Fehlerinjektion mit obigen Freiheitsgraden/Faktoren
+
+Ausblick in Dokumentation: Fehlerabsicherung

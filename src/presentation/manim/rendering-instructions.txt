@@ -1,0 +1,3 @@
+Rendering-Befehl:
+.\.venv\Scripts\python.exe -m manim <media type> --media_dir .\src\presentation\manim\media .\src\presentation\manim\cnn_filter.py CNNFilter
+Medien-Typ: -pqh für Video (1080p60); -qh -s für PNG
