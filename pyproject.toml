@@ -1,0 +1,11 @@
+[project]
+name = "mnist-fault-injection"
+version = "0.1.0"
+dependencies = [
+"torch",
+"torchvision",
+"pytorchfi",
+]
+
+[tool.setuptools]
+packages = ["src"]
