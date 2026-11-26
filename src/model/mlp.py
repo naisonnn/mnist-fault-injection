@@ -17,10 +17,3 @@ class MNIST_MLP(nn.Module):
         x = self.relu(x)            # [N, 12] -> [N, 12]
         x = self.classifier(x)      # [N, 12] -> [N, 10]
         return x
-
-if __name__ == "__main__":
-    import torch
-
-    model = MNIST_MLP()
-    images = torch.randn(4, 1, 28, 28)
-    print(model(images).shape)
